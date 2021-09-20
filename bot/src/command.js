@@ -13,31 +13,31 @@ let liner;
 * Calculate monthly expense
 */
 function sumMonthlyExpense() {
-    liner = new lineByLine(RECORD_FILE);
-    total = 0;
+		liner = new lineByLine(RECORD_FILE);
+		total = 0;
 		var c = DateTime.now().setZone('Asia/Taipei').c
-    currMonth = c.month;
-		currYear  = c.year;
-    var y,m,d,h,min,item,price;
-    var _d = null;
-    var countD = 0;
-  
-    // get all record
-    while (line = liner.next()) {
-      line = line.toString();
-      [y,m,d,h,min,item,price] = line.split(",");
-      if (m == currMonth) {
-        total += parseInt(price);
-      }
-  
-      if (_d == null || d != _d) {
-        countD ++;
-        _d = d;
-      }
-    }
-  
-    console.info(`[INFO] Total ${total} in ${MONTHS[parseInt(m)]}`);
-    return `You have spent ${total} in ${MONTHS[parseInt(m)]}, ${(total/countD).toFixed(2)}/day`;
+		currMonth = c.month;
+		currYear = c.year;
+		var y,m,d,h,min,item,price;
+		var _d = null;
+		var countD = 0;
+	
+		// get all record
+		while (line = liner.next()) {
+			line = line.toString();
+			[y,m,d,h,min,item,price] = line.split(",");
+			if (m == currMonth) {
+				total += parseInt(price);
+			}
+	
+			if (_d == null || d != _d) {
+				countD ++;
+				_d = d;
+			}
+		}
+	
+		console.info(`[INFO] Total ${total} in ${MONTHS[parseInt(m)]}`);
+		return `You have spent ${total} in ${MONTHS[parseInt(m)]}, ${(total/countD).toFixed(2)}/day`;
 }
 
 /**
@@ -48,8 +48,8 @@ function sumDailyExpense() {
 	total = 0;
 	var c = DateTime.now().setZone('Asia/Taipei').c;
 	currMonth = c.month;
-	currDay   = c.day;
-	currYear  = c.year;
+	currDay = c.day;
+	currYear = c.year;
 
 	var y,m,d,h,min,item,price;
 
@@ -69,6 +69,6 @@ function sumDailyExpense() {
 
 
 module.exports = {
-  sumMonthlyExpense: sumMonthlyExpense,
+	sumMonthlyExpense: sumMonthlyExpense,
 	sumDailyExpense: sumDailyExpense,
 }   
