@@ -1,72 +1,76 @@
-const fs = require('fs');
 const lineByLine = require('n-readlines');
-const { DateTime } = require("luxon");
+const {ctime} = require('./utils/utils');
 const {MONTHS, RECORD_FILE} = require('./param');
 
-let currYear;
-let currMonth;
-let currDay;
+let liner = null, line = null;
 let total = 0;
-let line = null;
-let liner;
+let curr  = null;
+
+function parseData(line) {
+  const recordRegex = new RegExp('(?<year>\\d+), (?<month>\\d+), (?<day>\\d+), (?<hour>\\d+), (?<minute>\\d+), (?<item>.+), (?<price>\\d+)');
+  var data = recordRegex.exec(line);
+    if (data == null) {
+      console.error("Record file is broken");
+      console.error(line);
+      // TODO: We shall let user know that the data is broken and the result may not be correct.
+    }else {
+      data = data.groups;
+    }
+  return data;
+}
+
+function initialize() {
+  liner = new lineByLine(RECORD_FILE);
+  line  = null;
+  total = 0;
+  curr = ctime();
+}
+
 /**
 * Calculate monthly expense
 */
 function sumMonthlyExpense() {
-  liner = new lineByLine(RECORD_FILE);
-  total = 0;
-  var c = DateTime.now().setZone('Asia/Taipei').c
-  currMonth = c.month;
-  currYear = c.year;
-  var y,m,d,h,min,item,price;
-  var _d = null;
-  var countD = 0;
-
+  initialize();
+  var lastDay = null, dayCount = 0;
+  var data;
   // get all record
   while (line = liner.next()) {
-    line = line.toString();
-    [y,m,d,h,min,item,price] = line.split(",");
-    if (m == currMonth) {
-      total += parseInt(price);
+    data = parseData(line.toString());
+    if (data == null) continue;
+
+    if (data.year == curr.year && data.month == curr.month) {
+      total += parseInt(data.price);
     }
 
-    if (_d == null || d != _d) {
-      countD ++;
-      _d = d;
+    if (lastDay != data.day) {
+      ++dayCount;
+      lastDay = data.day;
     }
   }
 
-  console.info(`[INFO] Total ${total} in ${MONTHS[parseInt(m)]}`);
-  return `You have spent ${total} in ${MONTHS[parseInt(m)]}, ${(total/countD).toFixed(2)}/day`;
+  console.info(`[INFO] Total ${total} in ${MONTHS[curr.month]}`);
+  return `You have spent ${total} in ${MONTHS[curr.month]}, ${(total/dayCount).toFixed(2)}/day`;
 }
 
 /**
 * Calculate daily expense
 */
 function sumDailyExpense() {
-  liner = new lineByLine(RECORD_FILE);
-  total = 0;
-  var c = DateTime.now().setZone('Asia/Taipei').c;
-  currMonth = c.month;
-  currDay = c.day;
-  currYear = c.year;
-
-  var y,m,d,h,min,item,price;
-
-  // get all record
+  initialize();
+  var data;
+  // get all recor
   while (line = liner.next()) {
-    line = line.toString();
-    [y,m,d,h,min,item,price] = line.split(",");
-    if (y == currYear && m == currMonth && d == currDay) {
-      total += parseInt(price);
+    data = parseData(line.toString());
+    if (data == null) continue;
+
+    if (data.year == curr.year && data.month == curr.month && data.day == curr.day) {
+      total += parseInt(data.price);
     }
   }
 
   console.info(`[INFO] Total ${total} Today`);
   return `You have spent ${total} Today`;
 }
-
-
 
 module.exports = {
   sumMonthlyExpense: sumMonthlyExpense,
