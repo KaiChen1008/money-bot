@@ -7,9 +7,9 @@ function record(text) {
   var item, price;
   // TODO: Use Regrex
   if (text.includes("：")) {
-	  [item, price] = text.split("：");
+    [item, price] = text.split("：");
   }else {
-	  [item, price] = text.split(":");
+    [item, price] = text.split(":");
   }
   
   var t = DateTime.now().setZone('Asia/Taipei').c;
@@ -31,5 +31,5 @@ function record(text) {
 }
 
 module.exports = {
-	record:record,
+  record:record,
 }
